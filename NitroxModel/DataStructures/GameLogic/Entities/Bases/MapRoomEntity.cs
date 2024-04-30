@@ -4,6 +4,8 @@ using System.Runtime.Serialization;
 using BinaryPack.Attributes;
 using NitroxModel.DataStructures.GameLogic.Entities.Metadata;
 using NitroxModel.DataStructures.Unity;
+using NitroxModel.Packets;
+
 
 namespace NitroxModel.DataStructures.GameLogic.Entities.Bases;
 
@@ -42,4 +44,24 @@ public class MapRoomEntity : GlobalRootEntity
     {
         return $"[MapRoomEntity Id: {Id}, Cell: {Cell}]";
     }
+    public void StartScan()
+    {
+        // Send a request to the server to start a scan
+    }
 }
+public class ResourceTrackerDatabase
+{
+    public void StartScan(NitroxId mapRoomId, double scanRadius)
+    {
+        // Start a coroutine that periodically checks for resources within the scan radius
+    }
+}
+public class ScanResultPacket : Packet
+{
+    public NitroxId EntityId { get; }
+    public NitroxTechType TechType { get; }
+    public double Distance { get; }
+
+    // Constructor and other methods...
+}
+
