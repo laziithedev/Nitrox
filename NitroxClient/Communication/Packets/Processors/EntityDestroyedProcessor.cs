@@ -2,20 +2,28 @@ using NitroxClient.Communication.Packets.Processors.Abstract;
 using NitroxClient.GameLogic;
 using NitroxClient.GameLogic.PlayerLogic;
 using NitroxClient.MonoBehaviours;
+using NitroxModel.DataStructures;
 using NitroxModel.Packets;
+using System.Collections.Generic;
 using UnityEngine;
+using static ResourceTrackerDatabase;
+using static UWE.FreezeTime;
 
 namespace NitroxClient.Communication.Packets.Processors;
 
 public class EntityDestroyedProcessor : ClientPacketProcessor<EntityDestroyed>
 {
     public const DamageType DAMAGE_TYPE_RUN_ORIGINAL = (DamageType)100;
-
+    public TechType typeToScan;
     private readonly Entities entities;
+    private readonly ResourceTrackerDatabase resourceTrackerDatabase;
+    private readonly List<ResourceTrackerDatabase.ResourceInfo> resourceNodes;
 
-    public EntityDestroyedProcessor(Entities entities)
+    public EntityDestroyedProcessor(Entities entities, ResourceTrackerDatabase resourceTrackerDatabase, OnResourceRemoved onResourceRemoved)
     {
         this.entities = entities;
+        this.resourceTrackerDatabase = resourceTrackerDatabase;
+        ResourceTrackerDatabase.onResourceRemoved += onResourceRemoved;
     }
 
     public override void Process(EntityDestroyed packet)
@@ -46,6 +54,15 @@ public class EntityDestroyedProcessor : ClientPacketProcessor<EntityDestroyed>
         }
     }
 
+    private void OnResourceRemoved(ResourceTrackerDatabase.ResourceInfo Info)
+    {
+        if(this.typeToScan == Info.techType)
+
+        {
+            this.resourceNodes.Remove(Info);
+        }
+    }
+
     private void DestroySubroot(SubRoot subRoot)
     {
         if (subRoot.live.health > 0f)
@@ -59,6 +76,7 @@ public class EntityDestroyedProcessor : ClientPacketProcessor<EntityDestroyed>
         // We use a specific DamageType so that the Prefix on this method will accept this call
         subRoot.OnTakeDamage(new() { type = DAMAGE_TYPE_RUN_ORIGINAL });
     }
+
 
     private void DestroyVehicle(Vehicle vehicle)
     {
